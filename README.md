@@ -4,7 +4,15 @@ This is a minimal implementation of the RAG model for question answering.
 
 ## Requirements
 
-- Python 3.8 or later
+- Python 3.13 or later
+
+### Install Dependencies
+
+```bash
+sudo apt update
+
+sudo apt install libpq-dev gcc python3-dev
+```
 
 #### Install Python using MiniConda
 
@@ -12,7 +20,7 @@ This is a minimal implementation of the RAG model for question answering.
 2. Create a new environment using the following command:
 
 ```bash
-$ conda create -n mini-rag python=3.8
+$ conda create -n mini-rag python=3.13
 ```
 
 3. Activate the environment:
