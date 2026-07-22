@@ -16,7 +16,7 @@ class ProjectController(BaseController):
         # This method constructs the file path for a given project ID, ensuring that the directory exists.
         # It checks if the directory for the project exists within the assets/files directory, and if not, it creates it.
 
-        project_dir = os.path.join(self.files_dir, project_id)
+        project_dir = os.path.join(self.files_dir, str(project_id))
 
         if not os.path.exists(project_dir):
             os.makedirs(project_dir)

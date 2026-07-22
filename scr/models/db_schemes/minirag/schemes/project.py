@@ -1,6 +1,7 @@
 from .minirag_base import SQLAlchemyBase
 from sqlalchemy import Column, DateTime, Integer, func
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 import uuid
 
 
@@ -16,3 +17,7 @@ class Project(SQLAlchemyBase):
     )
 
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
+
+    chunks = relationship("DataChunk", back_populates="project")
+
+    assets = relationship("Asset", back_populates="project")
