@@ -21,11 +21,13 @@ data_router = APIRouter(prefix="/api/v1/data", tags=["api_v1", "data"])
 # It validates the uploaded file, generates a unique file path, and saves the file asynchronously.
 # If the upload is successful, it returns a success signal along with the file ID; otherwise, it returns an error signal.
 
+# I am changing (project_id: str) to (project_id: int) as i am moving to postgres datasbase
+
 
 @data_router.post("/upload/{project_id}")
 async def upload_file(
     request: Request,
-    project_id: str,
+    project_id: int,
     file: UploadFile,
     app_settings: Settings = Depends(get_settings),
 ):
@@ -64,7 +66,7 @@ async def upload_file(
     asset_model = await AssetModel.create_instance(db_client=request.app.db_client)
 
     asset_resource = Asset(
-        asset_project_id=project.id,
+        asset_project_id=project.project_id,
         asset_type=AssetTypeEnum.FILE.value,
         asset_name=file.filename,
         asset_size=os.path.getsize(file_save_path),
@@ -89,7 +91,7 @@ async def upload_file(
 @data_router.post("/process/{project_id}")
 async def process_endpoint(
     request: Request,
-    project_id: str,
+    project_id: int,
     process_request: ProcessRequest,
 ):
     # Implementation for processing the file
@@ -105,7 +107,7 @@ async def process_endpoint(
 
     if process_request.file_id:
         asset_record = await asset_model.get_asset_record(
-            asset_project_id=project.id, asset_name=process_request.file_id
+            asset_project_id=project.project_id, asset_name=process_request.file_id
         )
         if asset_record is None:
             return JSONResponse(
@@ -116,17 +118,17 @@ async def process_endpoint(
             )
 
         project_file_ids = {
-            asset_record.id: asset_record.asset_config.get("stored_file_id")
+            asset_record.asset_id: asset_record.asset_config.get("stored_file_id")
         }
 
     else:
 
         project_files = await asset_model.get_all_project_assets(
-            asset_project_id=project.id, asset_type=AssetTypeEnum.FILE.value
+            asset_project_id=project.project_id, asset_type=AssetTypeEnum.FILE.value
         )
         # project_file_ids = [str(asset["_id"]) for asset in project_files]
         project_file_ids = {
-            record.id: record.asset_config.get("stored_file_id")
+            record.asset_project_id: record.asset_config.get("stored_file_id")
             for record in project_files
             if record.asset_config and record.asset_config.get("stored_file_id")
         }
@@ -147,7 +149,7 @@ async def process_endpoint(
     chunk_model = await ChunkModel.create_instance(db_client=request.app.db_client)
 
     if do_reset:
-        deleted = await chunk_model.delete_chunk_by_project_id(project.id)
+        deleted = await chunk_model.delete_chunk_by_project_id(project.project_id)
 
     for asset_id, file_id in project_file_ids.items():
 
@@ -175,7 +177,7 @@ async def process_endpoint(
                 chunk_text=chunk.page_content,
                 chunk_metadata=chunk.metadata,
                 chunk_order=1 + i,
-                chunk_project_id=project.id,
+                chunk_project_id=project.project_id,
                 chunk_asset_id=asset_id,
             )
             for i, chunk in enumerate(file_chunks)
