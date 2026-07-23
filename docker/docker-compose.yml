@@ -1,6 +1,6 @@
 services:
   mongodb:
-    image: mongo:7.0-jammy
+    image: mongo:7.0.39-jammy
     container_name: mongodb
     ports:
       - "27007:27017"
@@ -15,7 +15,7 @@ services:
     restart: always
 
   pgvector:
-    image: pgvector/pgvector:0.8.2-pg18-trixie
+    image: pgvector/pgvector:0.8.5-pg18-trixie
     container_name: pgvector
     ports:
       - "5432:5432"
